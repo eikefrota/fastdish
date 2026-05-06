@@ -130,7 +130,7 @@
 }
 
 .carousel-btn i {
-  color: #ee5656;
+  color: var(--color-primary);
   font-size: 16px;
 }
 
@@ -166,7 +166,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-radius: 20px;
+  border-radius: 8px;
   gap: 12px;
   /* use a flexible basis so items wrap predictably */
   flex: 0 1 calc(25% - 24px);
@@ -181,12 +181,12 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between; /* push price to bottom */
-  height: 540px; /* fixed card height - adjust if needed */
+  min-height: 540px;
 }
 
 .dish-heart {
   position: absolute;
-  background-color: #ee5656;
+  background-color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -196,7 +196,7 @@
   height: 70px;
   right: 0px;
   top: 0px;
-  border-radius: 0px 21px 0px 43px;
+  border-radius: 0px 8px 0px 36px;
 }
 
 .dish-image {
@@ -239,7 +239,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ee5656;
+  background-color: var(--color-primary);
   color: #ffffff;
   padding: 8px;
   box-shadow: 0px 5px 20px 0px rgba(0, 0, 0, 0.3);
@@ -248,7 +248,8 @@
 }
 
 .btn-dish:hover {
-  transform: scale(110%);
+  background-color: var(--color-primary-hover);
+  transform: scale(1.1);
 }
 
 @media screen and (max-width: 1185px) {
@@ -267,7 +268,7 @@
 
   .dish {
     width: calc(50% - 12px);
-    height: 520px; /* slightly smaller on narrower screens */
+    min-height: 520px;
   }
 }
 
@@ -275,6 +276,7 @@
   .dish {
     width: 100%;
     height: auto; /* allow natural height on very small screens */
+    min-height: 0;
   }
 
   .carousel-cell {

@@ -9,6 +9,7 @@
   justify-content: center;
   z-index: 99;
   display: none; /* Escondido por padrão */
+  padding: 16px;
 }
 
 /* Container do modal */
@@ -16,10 +17,11 @@
   background-color: white;
   padding: 16px;
   border-radius: 8px;
-  min-width: 40%;
-  max-width: 400px;
+  width: min(92vw, 430px);
+  min-width: 0;
+  max-width: 430px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: 95%;
+  max-height: min(95vh, 760px);
   overflow: auto; /* Adiciona barra de rolagem se o conteúdo ultrapassar o tamanho */
   word-wrap: break-word;
 }
@@ -39,6 +41,7 @@
 
 /* Textos e inputs */
 .address-label {
+  display: block;
   font-weight: bold;
   margin-top: 12px;
 }
@@ -56,6 +59,11 @@
   background-color: #f9f9f9;
 }
 
+textarea.address-input {
+  min-height: 76px;
+  resize: vertical;
+}
+
 .error-border {
   border: 2px solid #e3342f; /* Vermelho para destacar erro */
 }
@@ -70,6 +78,7 @@
 /* Botões */
 .address-buttons {
   display: flex;
+  gap: 12px;
   justify-content: space-between;
   margin-top: 20px;
 }
@@ -92,7 +101,7 @@
 }
 
 #checkout-btn {
-  background-color: #22c55e;
+  background-color: #15803d;
   color: white;
   transition: transform 0.2s ease-in-out;
   font-weight: bold;
@@ -100,4 +109,25 @@
 
 #checkout-btn:hover {
   transform: scale(1.05);
+}
+
+@media (max-width: 480px) {
+  .address-background {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .address-container {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    padding: 14px;
+  }
+
+  .address-buttons {
+    flex-direction: column-reverse;
+  }
+
+  .address-buttons button {
+    width: 100%;
+  }
 }

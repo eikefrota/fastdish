@@ -1,178 +1,146 @@
-# 🍔 FastDish
+# FastDish
+
+FastDish e uma aplicacao web em React + Vite para pedidos de lanchonete. O fluxo cobre cardapio por categorias, carrinho, endereco com consulta de CEP, forma de pagamento e envio do pedido pelo WhatsApp.
 
 <p align="center">
   <img src="public/cover.png" alt="Mockup do FastDish" width="700"/>
 </p>
 
-**FastDish** é um sistema web desenvolvido em **React + Vite** que simula o fluxo de pedidos de uma lanchonete. Do cardápio até a finalização do pedido. O projeto transforma um site estático em uma aplicação dinâmica, com componentes reutilizáveis, hooks personalizados e integração com APIs úteis para um fluxo realista de pedidos.
+## Demo
 
----
+https://fastdish.vercel.app/
 
-## 🔗 Deploy (demo)
+## Funcionalidades
 
-Acesse a versão hospedada:
+- Cardapio por categorias: pizzas, hamburgueres e bebidas.
+- Carrinho com adicionar, remover, limpar, quantidade e total em tempo real.
+- Taxa de entrega e pedido minimo configuraveis por variaveis de ambiente.
+- Endereco com preenchimento por ViaCEP e validacao de campos obrigatorios.
+- Observacoes do pedido antes do pagamento.
+- Pagamento por dinheiro, cartao e Pix.
+- Pix copia-e-cola com QR Code gerado no front-end.
+- Mensagem de pedido pronta para WhatsApp.
+- Layout responsivo com menu mobile e modais acessiveis.
+- Testes unitarios e de fluxo para carrinho, checkout, Pix, cartao e ViaCEP.
 
-👉 https://fastdish.vercel.app/
-
----
-
-## 🎯 Objetivo
-
-Oferecer uma base front-end prática e organizada para um sistema de pedidos online, com ênfase em:
-
-- Experiência de usuário (UX) simples e responsiva
-- Componentização e reuso via React
-- Estado do carrinho gerenciado por hooks
-- Facilitar integração com backend e serviços externos
-
----
-
-## 🚀 Funcionalidades
-
-- 🍽️ **Menu por categorias** — navegue por lanches, pizzas, bebidas etc.
-- 🛒 **Carrinho dinâmico** — adicionar/remover itens e atualização em tempo real
-- 💰 **Cálculo automático do total** — subtotal, taxas (se configuradas) e total
-- 🏠 **Busca de endereço por CEP (ViaCEP)** — preenchimento automático do endereço
-- 💬 **Envio do pedido via WhatsApp** — gera uma mensagem pronta para o estabelecimento
-- 💳 **Formas de pagamento** — Dinheiro, Cartão (Crédito/Débito) e PIX (QR Code e copia/cola)
-- ⚙️ **Hook `useCart`** — encapsula toda lógica do carrinho
-- 📱 **Layout responsivo** — pensado para desktop e mobile
-
----
-
-## 🖼️ Demonstrações do Projeto
-
-> Substitua as imagens em `public/screens/` por capturas reais se desejar.
-
-<p align="center">
-  <img src="public/screens/menu.png" alt="Tela do Cardápio - FastDish" width="800" />
-</p>
-
-<p align="center">
-  <img src="public/screens/cart.png" alt="Resumo do Carrinho - FastDish" width="800" />
-</p>
-
----
-
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias
 
 - React 18
 - Vite
-- JavaScript (ESNext)
+- JavaScript
 - CSS
+- Vitest + Testing Library
+- Playwright + axe-core
+- qrcode
+- sharp
 
-### Integrações
+## Integracoes
 
-- ViaCEP — busca de endereço por CEP
-- WhatsApp — envio do pedido
-- qrcode (npm) — geração de QR Code para PIX
+- ViaCEP: busca de endereco pelo CEP.
+- WhatsApp: envio do pedido para o numero configurado.
+- Pix EMV: payload copia-e-cola e QR Code.
 
----
+## Estrutura
 
-## 📁 Estrutura do Projeto (resumo)
-
+```text
 src/
-├── App.jsx
-├── main.jsx
-├── assets/ (imagens)
-├── components/ (Header, Menu, DishCard, Modals...)
-├── hooks/ (useCart, ...)
-├── services/ (ViaCEP, WhatsApp, gerador de PIX)
-└── styles/ (CSS)
+  App.jsx                    Orquestra fluxo, modais e checkout
+  main.jsx                   Entrada React
+  assets/                    PNGs originais e WebPs otimizados
+  components/                Header, Menu, DishCard, Address/Cart/Payment modals
+  config/store.js            Configuracao da loja via Vite env
+  data/dishes.js             Dados e imagens do cardapio
+  hooks/useCart.js           Regras do carrinho
+  styles/                    CSS por area da interface
+  utils/cardValidation.js    Validacao e mascara de cartao
+  utils/pix.js               Geracao de payload Pix
+  utils/viacep.js            Cliente ViaCEP
 
-public/ (estáticos: imagens, favicon)
-package.json
-vite.config.js
+scripts/
+  optimize-assets.mjs        Gera WebP a partir dos PNGs de produto
 
----
-
-## 💻 Como Executar (local)
-
-Siga estes passos para rodar o projeto localmente:
-
-1. Clone o repositório
-
-```bash
-git clone https://github.com/eikefrota/fastdish.git
+test/
+  setupTests.js              Setup global dos testes
 ```
 
-2. Acesse a pasta do projeto
+## Ambiente
+
+Copie `.env.example` para `.env.local` e ajuste os valores da loja.
 
 ```bash
-cd fastdish
+cp .env.example .env.local
 ```
 
-3. Instale as dependências
+Variaveis principais:
+
+```bash
+VITE_STORE_NAME=FastDish
+VITE_STORE_PHONE_DISPLAY=(85) 99906-2339
+VITE_WHATSAPP_PHONE=5585999062339
+VITE_STORE_STREET=Rua Exemplo
+VITE_STORE_NUMBER=123
+VITE_STORE_CITY=Fortaleza
+VITE_STORE_STATE=CE
+VITE_PIX_KEY=85999062338
+VITE_PIX_MERCHANT_NAME=FASTDISH
+VITE_PIX_MERCHANT_CITY=FORTALEZA
+VITE_DELIVERY_FEE=0
+VITE_MINIMUM_ORDER=0
+```
+
+Use `VITE_DELIVERY_FEE` para cobrar entrega e `VITE_MINIMUM_ORDER` para bloquear pedidos abaixo do valor minimo.
+
+## Como Executar
 
 ```bash
 npm install
-```
-
-4. Rode em modo desenvolvimento
-
-```bash
 npm run dev
 ```
 
-5. Build para produção
+O Vite normalmente abre em `http://localhost:5173`.
+
+## Scripts
 
 ```bash
-npm run build
+npm run dev              # servidor local
+npm run check:a11y       # axe + screenshots via Playwright
+npm run build            # build de producao
+npm run preview          # preview da build
+npm run test             # testes automatizados
+npm run optimize:assets  # gera WebPs otimizados em src/assets
 ```
 
-6. Preview da build
+Quando alterar PNGs de produto em `src/assets`, rode `npm run optimize:assets` e mantenha os PNGs como fonte editavel. A aplicacao importa os WebPs.
+
+Para a checagem Playwright/Axe, mantenha o servidor local ativo em `http://127.0.0.1:5173` ou informe outro endereco:
 
 ```bash
-npm run preview
+CHECK_URL=http://127.0.0.1:4173 npm run check:a11y
 ```
 
-O Vite por padrão abre em http://localhost:5173.
+## Testes
 
-### Scripts (exemplo em package.json)
+A suite cobre:
 
-```json
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest"
-  }
-}
-```
+- `useCart`: adicionar, remover, incrementar e limpar itens.
+- `viacep`: sucesso, CEP invalido e falha de rede/API.
+- `cardValidation`: bandeira, mascara, Luhn, validade e CVV.
+- `pix`: CRC16 e payload EMV.
+- `DishCard`, `Header`, `CartModal` e `PaymentModal`.
+- Fluxo principal em `App.test.jsx`: carrinho, endereco obrigatorio e finalizacao no WhatsApp.
 
----
-
-## ✅ Testes
-
-Recomenda-se executar:
+Execute antes de publicar:
 
 ```bash
 npm run test
+npm run build
+npm run check:a11y
+npm audit
 ```
 
-Execute os testes antes de abrir PRs para garantir o funcionamento dos hooks e utilitários (ex.: `useCart`, gerador de PIX e envio via WhatsApp).
+## Observacoes Operacionais
 
----
-
-## 🤝 Como Contribuir
-
-1. Faça um fork do repositório
-2. Crie uma branch:
-
-```bash
-git checkout -b feature/minha-melhora
-```
-
-3. Faça commits das alterações
-4. Abra um Pull Request para `main`
-
----
-
-## 👨‍💻 Autor
-
-Eike Frota
-
----
-
-Se quiser, posso gerar uma versão do README com badges automáticas e links diretos para o LinkedIn/GitHub. Deseja que eu adicione?
+- Os dados do cardapio ficam em `src/data/dishes.js`; para adicionar produto, importe a imagem WebP e inclua o item na categoria correta.
+- As informacoes da loja ficam em `src/config/store.js` e devem vir preferencialmente de `.env.local`.
+- O app ainda e front-end only; pedidos sao enviados pelo WhatsApp e nao ha persistencia em banco.
+- Cartao e Pix sao simulados no front-end. Para producao real, integre um provedor de pagamento e remova qualquer coleta local de dados sensiveis.

@@ -66,6 +66,14 @@ export default function AddressModal({
     }
   }
 
+  const cepDigits = address.cep.replace(/\D/g, "");
+  const showCepWarning =
+    (showErrors || touched.cep) && !focused.cep && cepDigits.length !== 8;
+  const showNumberWarning =
+    (showErrors || touched.number) &&
+    !focused.number &&
+    address.number.trim() === "";
+
   return (
     <section id="address" aria-label="Endereço de Entrega">
       <div
@@ -73,16 +81,29 @@ export default function AddressModal({
         id="address-modal"
         style={{ display: "flex" }}
       >
-        <div className="address-container" role="dialog" aria-modal="true">
-          <h2 className="address-title">ENDEREÇO</h2>
+        <div
+          className="address-container"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="address-title"
+        >
+          <h2 className="address-title" id="address-title">
+            ENDEREÇO
+          </h2>
 
-          <p className="address-label">CEP</p>
+          <label className="address-label" htmlFor="input-cep">
+            CEP
+          </label>
           <input
             type="text"
             id="input-cep"
             className="address-input"
             value={formatCepForDisplay(address.cep)}
             ref={cepRef}
+            inputMode="numeric"
+            autoComplete="postal-code"
+            aria-invalid={showCepWarning}
+            aria-describedby="cep-warn"
             onChange={(e) => {
               const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
               setAddress((a) => ({ ...a, cep: digits }));
@@ -100,15 +121,12 @@ export default function AddressModal({
             className="warning-text"
             id="cep-warn"
             style={{
-              display:
-                (showErrors || touched.cep) &&
-                !focused.cep &&
-                address.cep.trim() === ""
-                  ? "block"
-                  : "none",
+              display: showCepWarning ? "block" : "none",
             }}
           >
-            Campo obrigatório!
+            {cepDigits.length === 0
+              ? "Campo obrigatório!"
+              : "CEP deve ter 8 dígitos."}
           </p>
 
           <p
@@ -124,7 +142,9 @@ export default function AddressModal({
             {cepError}
           </p>
 
-          <p className="address-label">Rua</p>
+          <label className="address-label" htmlFor="input-street">
+            Rua
+          </label>
           <input
             type="text"
             id="input-street"
@@ -133,13 +153,18 @@ export default function AddressModal({
             value={address.street}
           />
 
-          <p className="address-label">Número</p>
+          <label className="address-label" htmlFor="input-number">
+            Número
+          </label>
           <input
             type="text"
             id="input-number"
             className="address-input"
             ref={numberRef}
             value={address.number}
+            autoComplete="address-line2"
+            aria-invalid={showNumberWarning}
+            aria-describedby="number-warn"
             onChange={(e) =>
               setAddress((a) => ({ ...a, number: e.target.value }))
             }
@@ -153,29 +178,43 @@ export default function AddressModal({
             className="warning-text"
             id="number-warn"
             style={{
-              display:
-                (showErrors || touched.number) &&
-                !focused.number &&
-                address.number.trim() === ""
-                  ? "block"
-                  : "none",
+              display: showNumberWarning ? "block" : "none",
             }}
           >
             Campo obrigatório!
           </p>
 
-          <p className="address-label">Complemento</p>
+          <label className="address-label" htmlFor="input-complement">
+            Complemento
+          </label>
           <input
             type="text"
             id="input-complement"
             className="address-input"
+            autoComplete="address-line3"
             value={address.complement}
             onChange={(e) =>
               setAddress((a) => ({ ...a, complement: e.target.value }))
             }
           />
 
-          <p className="address-label">Bairro</p>
+          <label className="address-label" htmlFor="input-notes">
+            Observações do pedido
+          </label>
+          <textarea
+            id="input-notes"
+            className="address-input"
+            rows={3}
+            placeholder="Ex.: sem cebola, interfone quebrado"
+            value={address.notes || ""}
+            onChange={(e) =>
+              setAddress((a) => ({ ...a, notes: e.target.value }))
+            }
+          />
+
+          <label className="address-label" htmlFor="input-neighborhood">
+            Bairro
+          </label>
           <input
             type="text"
             id="input-neighborhood"
@@ -184,7 +223,9 @@ export default function AddressModal({
             value={address.neighborhood}
           />
 
-          <p className="address-label">Cidade</p>
+          <label className="address-label" htmlFor="input-city">
+            Cidade
+          </label>
           <input
             type="text"
             id="input-city"
@@ -193,7 +234,9 @@ export default function AddressModal({
             value={address.city}
           />
 
-          <p className="address-label">Estado</p>
+          <label className="address-label" htmlFor="input-state">
+            Estado
+          </label>
           <input
             type="text"
             id="input-state"
@@ -203,11 +246,12 @@ export default function AddressModal({
           />
 
           <div className="address-buttons">
-            <button id="return-address-btn" onClick={onReturn}>
+            <button id="return-address-btn" type="button" onClick={onReturn}>
               Voltar
             </button>
             <button
               id="checkout-btn"
+              type="button"
               onClick={onCheckout}
               disabled={cepLoading}
             >

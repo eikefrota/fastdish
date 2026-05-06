@@ -17,8 +17,11 @@
   background-color: #eeeeee;
   padding: 20px;
   border-radius: 8px;
-  min-width: 50%;
-  max-width: 500px;
+  width: min(92vw, 520px);
+  min-width: 0;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -43,6 +46,16 @@
   font-weight: bold;
   font-size: 18px;
   margin: 10px 0;
+}
+
+.cart-total p {
+  margin: 4px 0;
+}
+
+.cart-minimum-warning {
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 /* Botões */
@@ -70,7 +83,7 @@
 }
 
 #confirm-cart-btn {
-  background-color: #22c55e;
+  background-color: #15803d;
   color: white;
   transition: transform 0.2s ease-in-out;
   font-weight: bold;
@@ -146,8 +159,8 @@
 
 @media (max-width: 600px) {
   .cart-container {
-    min-width: 90%;
-    max-width: 95%;
+    width: 100%;
+    max-width: 100%;
   }
   .cart-item {
     flex-direction: column;

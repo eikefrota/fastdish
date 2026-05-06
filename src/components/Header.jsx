@@ -1,20 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 
 export default function Header({
+  storeName = "FastDish",
   onOpenCart,
   cartButtonRef,
   cartQuantity = 0,
   cartBump = false,
+  onCartBumpEnd,
 }) {
   const [mobileActive, setMobileActive] = useState(false);
   const mobileMenuRef = useRef(null);
   const mobileBtnRef = useRef(null);
   const [isClosing, setIsClosing] = useState(false);
   const CLOSE_ANIM_DURATION = 280; // ms, keep in sync with CSS
-
-  function toggleMobile() {
-    setMobileActive((v) => !v);
-  }
 
   useEffect(() => {
     // prevent background scrolling when menu is open
@@ -76,6 +74,15 @@ export default function Header({
     });
   }
 
+  function handleCartClick() {
+    if (mobileActive || isClosing) {
+      closeMenu(onOpenCart);
+      return;
+    }
+
+    onOpenCart();
+  }
+
   return (
     <header>
       <nav id="nav-bar">
@@ -86,7 +93,7 @@ export default function Header({
           onClick={(e) => handleMobileLinkClick(e, "#home")}
         >
           <i className="fa-solid fa-burger" aria-hidden="true"></i>
-          FastDish
+          {storeName}
         </a>
 
         <ul id="nav-list">
@@ -115,12 +122,13 @@ export default function Header({
 
         <button
           id="btn-cart"
-          onClick={onOpenCart}
+          onClick={handleCartClick}
           ref={cartButtonRef}
           aria-haspopup="dialog"
           className={cartBump ? "cart-bump" : ""}
+          onAnimationEnd={onCartBumpEnd}
         >
-          <i className="fa-solid fa-bag-shopping"></i>
+          <i className="fa-solid fa-bag-shopping" aria-hidden="true"></i>
           Carrinho
           <span
             className="cart-badge"
@@ -203,10 +211,19 @@ export default function Header({
           </li>
         </ul>
 
-        <button id="btn-cart-mobile" onClick={onOpenCart}>
-          <i className="fa-solid fa-bag-shopping"></i>
+        <button
+          id="btn-cart-mobile"
+          onClick={handleCartClick}
+          aria-haspopup="dialog"
+        >
+          <i className="fa-solid fa-bag-shopping" aria-hidden="true"></i>
           Carrinho
-          <span className="cart-badge">{cartQuantity}</span>
+          <span
+            className="cart-badge"
+            aria-label={`${cartQuantity} itens no carrinho`}
+          >
+            {cartQuantity}
+          </span>
         </button>
       </div>
     </header>

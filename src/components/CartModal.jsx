@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { formatCurrency } from "../config/store";
 
 export default function CartModal({
   cart,
@@ -8,8 +9,13 @@ export default function CartModal({
   onAdd,
   removeAll,
   returnFocusRef,
+  deliveryFee = 0,
+  orderTotal,
+  minimumOrder = 0,
 }) {
   const total = cart.reduce((s, it) => s + it.price * it.quantity, 0);
+  const finalTotal = orderTotal ?? total + deliveryFee;
+  const belowMinimum = minimumOrder > 0 && total < minimumOrder;
   const firstButtonRef = useRef(null);
 
   useEffect(() => {
@@ -37,8 +43,15 @@ export default function CartModal({
         id="cart-modal"
         style={{ display: "flex" }}
       >
-        <div className="cart-container" role="dialog" aria-modal="true">
-          <h2 className="cart-title">CARRINHO</h2>
+        <div
+          className="cart-container"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cart-title"
+        >
+          <h2 className="cart-title" id="cart-title">
+            CARRINHO
+          </h2>
 
           <div id="cart-items">
             {cart.length === 0 ? (
@@ -54,17 +67,19 @@ export default function CartModal({
                       </span>
                     </p>
                     <p className="font-medium">
-                      R$ {(item.price * item.quantity).toFixed(2)}
+                      {formatCurrency(item.price * item.quantity)}
                     </p>
                     <div className="cart-item-controls">
                       <button
+                        type="button"
                         aria-label={`Remover uma unidade de ${item.name}`}
                         onClick={() => onRemove(item.name)}
                       >
                         -
                       </button>
-                      <span aria-hidden>{item.quantity}</span>
+                      <span aria-hidden="true">{item.quantity}</span>
                       <button
+                        type="button"
                         aria-label={`Adicionar unidade de ${item.name}`}
                         onClick={() => onAdd && onAdd(item)}
                       >
@@ -74,6 +89,7 @@ export default function CartModal({
                   </div>
                   <div className="cart-item-actions">
                     <button
+                      type="button"
                       className="btn-remove"
                       onClick={() => removeAll && removeAll(item.name)}
                     >
@@ -85,24 +101,33 @@ export default function CartModal({
             )}
           </div>
 
-          <p className="cart-total">
-            Total:{" "}
-            <span id="cart-total" aria-live="polite">
-              {total.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </span>
-          </p>
+          <div className="cart-total" aria-live="polite">
+            <p>Subtotal: {formatCurrency(total)}</p>
+            {deliveryFee > 0 && <p>Entrega: {formatCurrency(deliveryFee)}</p>}
+            <p>
+              Total: <span id="cart-total">{formatCurrency(finalTotal)}</span>
+            </p>
+          </div>
+          {belowMinimum && (
+            <p className="cart-minimum-warning">
+              Pedido minimo: {formatCurrency(minimumOrder)}
+            </p>
+          )}
 
           <div className="cart-buttons">
-            <button id="close-cart-btn" onClick={onClose} ref={firstButtonRef}>
+            <button
+              id="close-cart-btn"
+              type="button"
+              onClick={onClose}
+              ref={firstButtonRef}
+            >
               Fechar
             </button>
             <button
               id="confirm-cart-btn"
+              type="button"
               onClick={onConfirm}
-              disabled={cart.length === 0}
+              disabled={cart.length === 0 || belowMinimum}
             >
               Confirmar
             </button>

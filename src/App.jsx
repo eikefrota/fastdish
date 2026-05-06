@@ -1,173 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import CartModal from "./components/CartModal";
 import AddressModal from "./components/AddressModal";
 import PaymentModal from "./components/PaymentModal";
 import useCart from "./hooks/useCart";
+import {
+  buildWhatsAppUrl,
+  formatCurrency,
+  getOrderTotals,
+  storeConfig,
+} from "./config/store";
+import { dishesData, heroImage } from "./data/dishes";
 import { fetchAddressByCep } from "./utils/viacep";
 
 import "./styles/style.css";
-
-import pizzaCalabresa from "./assets/pizzas/pizza-calabresa.png";
-import pizzaCalabresa2 from "./assets/pizzas/pizza-calabresa2.png";
-import pizzaBacon from "./assets/pizzas/pizza-bacon.png";
-import pizzaMussarela from "./assets/pizzas/pizza-mussarela.png";
-import pizzaPepperoni from "./assets/pizzas/pizza-pepperoni.png";
-import pizzaPresunto from "./assets/pizzas/pizza-presunto-e-queijo.png";
-import pizzaCogumelo from "./assets/pizzas/pizza-cogumelo.png";
-import pizzaCogCalabresa from "./assets/pizzas/pizza-cogumelo-e-calabresa.png";
-import hamb1 from "./assets/burguers/hambuguer-1.png";
-import hamb2 from "./assets/burguers/hambuguer-2.png";
-import hamb3 from "./assets/burguers/hamburguer-3.png";
-import hamb4 from "./assets/burguers/hambuguer-4.png";
-import hambChicken from "./assets/burguers/hamburguer-chicken.png";
-import sanduicheBife from "./assets/burguers/sanduiche-bife.png";
-import sanduicheIntegral from "./assets/burguers/sanduiche-integral.png";
-import coca from "./assets/bebidas/coca.png";
-import guarana from "./assets/bebidas/guarana.png";
-import sucoLaranja from "./assets/bebidas/suco-laranja.png";
-import sucoMorango from "./assets/bebidas/suco-morango.png";
-import milkshakeChocolate from "./assets/bebidas/milkshake-chocolate.png";
-import milkshakeMorango from "./assets/bebidas/milkshake-morango.png";
-
-const dishesData = [
-  {
-    category: "Pizzas",
-    items: [
-      {
-        name: "Pizza Calabresa",
-        desc: "Molho artesanal, fatias de calabresa, cebola, orégano e massa crocante",
-        price: 32,
-        img: pizzaCalabresa2,
-      },
-      {
-        name: "Pizza Bacon",
-        desc: "Molho artesanal, pedaços crocantes de bacon, queijo derretido e toque de orégano",
-        price: 30,
-        img: pizzaBacon,
-      },
-      {
-        name: "Pizza Mussarela",
-        desc: "Molho artesanal, queijo derretido e um toque de orégano",
-        price: 28,
-        img: pizzaMussarela,
-      },
-      {
-        name: "Pizza Pepperoni",
-        desc: "Molho artesanal, fatias de pepperoni levemente picantes, queijo derretido e orégano",
-        price: 30,
-        img: pizzaPepperoni,
-      },
-      {
-        name: "Pizza Presunto e Queijo",
-        desc: "Fatias generosas de presunto com queijo derretido e massa macia",
-        price: 31,
-        img: pizzaPresunto,
-      },
-      {
-        name: "Pizza Cogumelo",
-        desc: "Cogumelos salteados com queijo cremoso e um toque de ervas",
-        price: 33,
-        img: pizzaCogumelo,
-      },
-      {
-        name: "Pizza Calabresa com Cogumelo",
-        desc: "Combinação de calabresa e cogumelos sobre molho especial",
-        price: 34,
-        img: pizzaCogCalabresa,
-      },
-    ],
-  },
-  {
-    category: "Hambúgueres",
-    items: [
-      {
-        name: "Burguer Salad",
-        desc: "Pão brioche, hambúrguer, queijo cheddar, alface, tomate e cebola roxa",
-        price: 27,
-        img: hamb1,
-      },
-      {
-        name: "Double Bacon",
-        desc: "Pão brioche, dois hambúrgueres, queijo cheddar, alface, tomate bacon",
-        price: 30,
-        img: hamb2,
-      },
-      {
-        name: "Double Chicken",
-        desc: "Pão brioche, duas fatias de frango, queijo cheddar, alface, tomate e cebola",
-        price: 25,
-        img: hamb3,
-      },
-      {
-        name: "Picles Burguer",
-        desc: "Pão brioche, hambúguer, dois queijos cheddar, alface e muito picles",
-        price: 29,
-        img: hamb4,
-      },
-      {
-        name: "Chicken Crocante",
-        desc: "Peito de frango empanado, alface crocante e molho especial no pão brioche",
-        price: 26,
-        img: hambChicken,
-      },
-      {
-        name: "Sub de Bife",
-        desc: "Pão baguete recheado com tiras de bife, queijo e pimentões grelhados",
-        price: 34,
-        img: sanduicheBife,
-      },
-      {
-        name: "Sanduíche Integral",
-        desc: "Pão integral com presunto, queijo, alface e tomate — opção mais leve",
-        price: 24,
-        img: sanduicheIntegral,
-      },
-    ],
-  },
-  {
-    category: "Bebidas",
-    items: [
-      {
-        name: "Coca-Cola",
-        desc: "Lata 350ml",
-        price: 5,
-        img: coca,
-      },
-      {
-        name: "Guaraná Antartica",
-        desc: "Lata 350ml",
-        price: 5,
-        img: guarana,
-      },
-      {
-        name: "Suco de Laranja",
-        desc: "Copo 350ml",
-        price: 8,
-        img: sucoLaranja,
-      },
-      {
-        name: "Suco de Morango",
-        desc: "Copo 350ml",
-        price: 8,
-        img: sucoMorango,
-      },
-      {
-        name: "Milkshake Chocolate",
-        desc: "Copo 500ml",
-        price: 12,
-        img: milkshakeChocolate,
-      },
-      {
-        name: "Milkshake Morango",
-        desc: "Copo 500ml",
-        price: 12,
-        img: milkshakeMorango,
-      },
-    ],
-  },
-];
 
 function App() {
   const { cart, add, remove, removeAll, clear, total, totalQuantity } =
@@ -187,9 +34,9 @@ function App() {
     state: "",
     paymentMethod: "",
     changeFor: "",
+    notes: "",
   });
-
-  useEffect(() => {}, []);
+  const { deliveryFee, orderTotal } = getOrderTotals(total);
 
   function showToast(text, success = true) {
     const globalToast =
@@ -214,9 +61,7 @@ function App() {
   function addToCart(item) {
     add(item);
     showToast("Produto adicionado com sucesso!", true);
-    // trigger bump animation on cart button
     setCartBump(true);
-    setTimeout(() => setCartBump(false), 300);
   }
   function removeFromCart(name) {
     remove(name);
@@ -233,6 +78,16 @@ function App() {
   function confirmCart() {
     if (cart.length === 0) {
       showToast("Carrinho vazio!", false);
+      return;
+    }
+    if (
+      storeConfig.order.minimumOrder > 0 &&
+      total < storeConfig.order.minimumOrder
+    ) {
+      showToast(
+        `Pedido minimo de ${formatCurrency(storeConfig.order.minimumOrder)}.`,
+        false
+      );
       return;
     }
     setCartVisible(false);
@@ -256,6 +111,13 @@ function App() {
   }
 
   function openPaymentFromAddress() {
+    if (!validateAddress()) {
+      setShowAddressErrors(true);
+      showToast("Preencha o CEP e o numero antes de continuar.", false);
+      return;
+    }
+
+    setShowAddressErrors(false);
     setAddressVisible(false);
     setPaymentVisible(true);
   }
@@ -263,23 +125,30 @@ function App() {
   // Accept cep as parameter to avoid race conditions when input changes
   function handleCepBlur(cepParam) {
     const cep = (cepParam || address.cep || "").replace(/\D/g, "");
-    if (cep.length !== 8) return;
-    fetchAddressByCep(cep)
+    if (cep.length !== 8) return Promise.resolve();
+    return fetchAddressByCep(cep)
       .then((data) => setAddress((a) => ({ ...a, ...data })))
-      .catch((err) => showToast(err.message, false));
+      .catch((err) => {
+        showToast(err.message, false);
+        throw err;
+      });
   }
 
-  function validateAddress() {
+  function validateAddress(targetAddress = address) {
     let valid = true;
-    if (address.cep.trim() === "") valid = false;
-    if (address.number.trim() === "") valid = false;
+    if (targetAddress.cep.replace(/\D/g, "").length !== 8) valid = false;
+    if (targetAddress.number.trim() === "") valid = false;
     return valid;
   }
 
-  function checkout(pixPayload) {
-    if (!validateAddress()) {
+  function checkout(pixPayload, paymentUpdate = {}) {
+    const orderAddress = { ...address, ...paymentUpdate };
+
+    if (!validateAddress(orderAddress)) {
       setShowAddressErrors(true);
-      showToast("Por favor, preencha todos os campos obrigatórios!", false);
+      setPaymentVisible(false);
+      setAddressVisible(true);
+      showToast("Preencha o CEP e o numero antes de finalizar.", false);
       return;
     }
     const now = new Date();
@@ -288,57 +157,74 @@ function App() {
 
     const cartLines = cart
       .map((item, idx) => {
-        const unit = item.price.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        });
-        const lineTotal = (item.price * item.quantity).toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        });
-        return `${idx + 1}. ${item.name} — ${
+        const unit = formatCurrency(item.price);
+        const lineTotal = formatCurrency(item.price * item.quantity);
+        return `${idx + 1}. ${item.name} - ${
           item.quantity
         } x ${unit} = ${lineTotal}`;
       })
       .join("\n");
 
-    const totalMsg = total.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    const subtotalMsg = formatCurrency(total);
+    const deliveryLine =
+      deliveryFee > 0 ? `\n*Entrega:* ${formatCurrency(deliveryFee)}` : "";
+    const totalMsg = formatCurrency(orderTotal);
 
-    const addressLines = `${address.street}, ${address.number}${
-      address.complement ? ` — ${address.complement}` : ""
-    }\n${address.neighborhood} — ${address.city}-${address.state}\nCEP: ${
-      address.cep
-    }`;
+    const addressLines = `${orderAddress.street}, ${orderAddress.number}${
+      orderAddress.complement ? ` - ${orderAddress.complement}` : ""
+    }\n${orderAddress.neighborhood} - ${orderAddress.city}-${
+      orderAddress.state
+    }\nCEP: ${orderAddress.cep}`;
 
-    const paymentInfo = address.paymentMethod
-      ? `*Pagamento:* ${address.paymentMethod}${
-          address.paymentMethod === "Dinheiro" && address.changeFor
-            ? ` — Troco para: ${address.changeFor}`
-            : address.paymentMethod === "Pix" && pixPayload
-            ? ` — Pix Copia e Cola: ${pixPayload}`
+    const paymentInfo = orderAddress.paymentMethod
+      ? `*Pagamento:* ${orderAddress.paymentMethod}${
+          orderAddress.paymentMethod === "Dinheiro" && orderAddress.changeFor
+            ? ` - Troco para: ${orderAddress.changeFor}`
+            : orderAddress.paymentMethod === "Pix" && pixPayload
+            ? ` - Pix Copia e Cola: ${pixPayload}`
+            : (orderAddress.paymentMethod === "Cartao" ||
+                orderAddress.paymentMethod === "Cartão") &&
+              orderAddress.card
+            ? ` - ${orderAddress.card.type} final ${orderAddress.card.cardLast4}`
             : ""
         }`
-      : "*Pagamento:* Não especificado";
+      : "*Pagamento:* Nao especificado";
 
-    const plainMessage = `🍽️ *Novo pedido — FastDish* ${orderId}\n🕒 ${datetime}\n━━━━━━━━━━━━━━━━━━━━\n*Itens:*\n${cartLines}\n━━━━━━━━━━━━━━━━━━━━\n*Resumo:* ${totalMsg}\n\n*Entrega:*\n${addressLines}\n\n${paymentInfo}\n\n*Obrigado!* 🙌\n`;
+    const plainMessage = `*Novo pedido - ${storeConfig.name}* ${orderId}
+${datetime}
 
-    const message = encodeURIComponent(plainMessage);
-    const phone = "+5585999062339";
-    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+*Itens:*
+${cartLines}
+
+*Subtotal:* ${subtotalMsg}${deliveryLine}
+*Total:* ${totalMsg}
+
+*Entrega:*
+${addressLines}
+
+${paymentInfo}
+
+${orderAddress.notes ? `*Observacoes:* ${orderAddress.notes}\n` : ""}
+
+Obrigado!
+`;
+
+    window.open(buildWhatsAppUrl(plainMessage), "_blank");
     clear();
     setAddressVisible(false);
+    setPaymentVisible(false);
+    setShowAddressErrors(false);
   }
 
   return (
     <div>
       <Header
+        storeName={storeConfig.name}
         onOpenCart={openCart}
         cartButtonRef={cartButtonRef}
         cartQuantity={totalQuantity}
         cartBump={cartBump}
+        onCartBumpEnd={() => setCartBump(false)}
       />
 
       <main id="content">
@@ -353,15 +239,15 @@ function App() {
             </p>
 
             <div id="cta-area">
-              <button id="cta-btn">
-                <a href="#menu">Ver cardápio</a>
-              </button>
+              <a id="cta-btn" href="#menu">
+                Ver cardápio
+              </a>
             </div>
           </div>
 
           <div id="banner">
             <div className="banner-image-container">
-              <img src={pizzaCalabresa} alt="Foto Pizza" />
+              <img src={heroImage} alt="Pizza Calabresa" />
             </div>
           </div>
         </section>
@@ -377,6 +263,9 @@ function App() {
             onAdd={add}
             removeAll={removeAll}
             returnFocusRef={cartButtonRef}
+            deliveryFee={deliveryFee}
+            orderTotal={orderTotal}
+            minimumOrder={storeConfig.order.minimumOrder}
           />
         )}
         {paymentVisible && (
@@ -388,6 +277,8 @@ function App() {
             returnFocusRef={cartButtonRef}
             cart={cart}
             total={total}
+            deliveryFee={deliveryFee}
+            orderTotal={orderTotal}
           />
         )}
         {addressVisible && (
@@ -417,27 +308,34 @@ function App() {
                 }}
               >
                 <i className="fa-solid fa-burger" aria-hidden="true"></i>
-                FastDish
+                {storeConfig.name}
               </a>
-              <p className="footer-desc">
-                O melhor sabor da cidade. Pizzas, hambúgueres e bebidas geladas
-                entregues rápido.
-              </p>
+              <p className="footer-desc">{storeConfig.description}</p>
               <div className="footer-socials">
-                <a href="#" aria-label="Instagram">
-                  <i className="fa-brands fa-instagram"></i>
-                </a>
-                <a href="#" aria-label="Facebook">
-                  <i className="fa-brands fa-facebook"></i>
-                </a>
-                <a href="#" aria-label="WhatsApp">
-                  <i className="fa-brands fa-whatsapp"></i>
+                {storeConfig.socialLinks.instagram && (
+                  <a
+                    href={storeConfig.socialLinks.instagram}
+                    aria-label="Instagram"
+                  >
+                    <i className="fa-brands fa-instagram" aria-hidden="true"></i>
+                  </a>
+                )}
+                {storeConfig.socialLinks.facebook && (
+                  <a
+                    href={storeConfig.socialLinks.facebook}
+                    aria-label="Facebook"
+                  >
+                    <i className="fa-brands fa-facebook" aria-hidden="true"></i>
+                  </a>
+                )}
+                <a href={storeConfig.socialLinks.whatsapp} aria-label="WhatsApp">
+                  <i className="fa-brands fa-whatsapp" aria-hidden="true"></i>
                 </a>
               </div>
             </div>
 
             <div className="footer-links">
-              <h4>Links rápidos</h4>
+              <h3>Links rápidos</h3>
               <ul>
                 <li>
                   <a href="#home">Início</a>
@@ -455,18 +353,20 @@ function App() {
             </div>
 
             <div className="footer-contact">
-              <h4>Contato</h4>
+              <h3>Contato</h3>
               <address>
-                Rua Exemplo, 123
+                {storeConfig.address.street}, {storeConfig.address.number}
                 <br />
-                Cidade - Estado
+                {storeConfig.address.city} - {storeConfig.address.state}
                 <br />
-                <a href="tel:+5585999062339">(85) 99906-2339</a>
+                <a href={`tel:+${storeConfig.whatsappPhone}`}>
+                  {storeConfig.phoneDisplay}
+                </a>
               </address>
             </div>
 
             <div className="footer-newsletter">
-              <h4>Newsletter</h4>
+              <h3>Newsletter</h3>
               <p>Receba promoções e novidades por e-mail.</p>
               <form
                 onSubmit={(e) => e.preventDefault()}
@@ -484,7 +384,7 @@ function App() {
 
           <div className="footer-bottom">
             <span className="footer-copyright">
-              &copy; 2025 FastDish. Todos os direitos reservados.
+              &copy; 2026 {storeConfig.name}. Todos os direitos reservados.
             </span>
           </div>
         </div>

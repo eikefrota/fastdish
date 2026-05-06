@@ -1,28 +1,6 @@
-.already-changed-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: linear-gradient(180deg, #ffffff, #f8fafc);
-  color: #0f172a;
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.04);
-  min-width: 140px;
-}
-
-.already-changed-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.08);
-}
-
-.already-changed-btn.active {
-  background: linear-gradient(90deg, #10b981, #06b6d4);
-  color: white;
-  border-color: transparent;
-  box-shadow: 0 10px 30px rgba(6, 182, 212, 0.12);
+#payment-modal .address-container {
+  width: min(92vw, 560px);
+  max-width: 560px;
 }
 
 #return-payment-btn {
@@ -31,45 +9,66 @@
 }
 
 #confirm-payment-btn {
-  background-color: #22c55e;
+  background-color: #15803d;
   color: white;
   font-weight: bold;
 }
 
-/* Disabled state: gray background and unavailable cursor */
 #confirm-payment-btn[disabled] {
-  background-color: #e0e0e0;
-  color: #333;
-  cursor: not-allowed;
+  background-color: #d1d5db;
+  color: #334155;
   transform: none !important;
   box-shadow: none;
 }
 
-/* Only apply hover visual effects when not disabled */
 #confirm-payment-btn:not([disabled]):hover {
   transform: scale(1.05);
 }
 
-/* Pills for payment options */
 .payment-methods {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
 }
 
+.payment-total-lines {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  text-align: right;
+}
+
+.payment-total-lines p {
+  margin: 0;
+}
+
+.payment-total-final {
+  font-weight: 700;
+}
+
 .payment-pill {
+  min-height: 44px;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   background: white;
+  color: #0f172a;
   cursor: pointer;
   font-weight: 600;
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    background 0.12s ease;
 }
 
 .payment-pill.selected {
-  background: linear-gradient(90deg, #10b981, #06b6d4);
+  background: #064e3b;
   color: white;
   border-color: transparent;
+}
+
+.payment-pill.selected span {
+  background-color: #064e3b;
+  color: #ffffff;
 }
 
 .payment-pill i {
@@ -78,48 +77,26 @@
 }
 
 .payment-pill:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15, 118, 110, 0.14);
 }
 
-.payment-methods input[type="text"],
-.payment-methods input[type="number"] {
-  width: 100%;
-}
-
-.already-changed-btn {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  cursor: pointer;
-}
-
-.already-changed-btn.active {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-}
-
-.already-changed-btn {
-  transition: transform 0.12s ease, background 0.12s ease;
-}
-
-.already-changed-btn:active {
-  transform: scale(0.98);
-}
-
-/* Enhanced styling for Already-changed button */
 .already-changed-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-height: 40px;
+  min-width: 140px;
   padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
   color: #0f172a;
+  cursor: pointer;
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.04);
+  transition: transform 0.12s ease, background 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
 .already-changed-btn:hover {
@@ -128,31 +105,47 @@
 }
 
 .already-changed-btn.active {
-  background: linear-gradient(90deg, #10b981, #06b6d4);
+  background: #064e3b;
   color: white;
   border-color: transparent;
-  box-shadow: 0 10px 30px rgba(6, 182, 212, 0.12);
 }
 
-/* pseudo-element removed to avoid duplicate check; FontAwesome icon used in JSX */
+.already-changed-btn:active {
+  transform: scale(0.98);
+}
 
 .address-input[disabled] {
   opacity: 0.8;
   background: #f9fafb;
 }
 
-/* Small style for card brand icons inside inputs */
 .card-brand-icon {
   font-size: 18px;
   color: #64748b;
 }
 
-/* PIX block styles */
 .pix-box {
   align-items: flex-start;
 }
+
 .pix-key {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
     "Courier New", monospace;
   white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  #payment-modal .address-container {
+    width: 100%;
+  }
+
+  .payment-methods,
+  .pix-box {
+    flex-direction: column;
+  }
+
+  .payment-pill,
+  .already-changed-btn {
+    width: 100%;
+  }
 }

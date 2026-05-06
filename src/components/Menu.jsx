@@ -4,12 +4,12 @@ import DishCard from "./DishCard";
 export default function Menu({ groups, onAdd }) {
   const idMap = {
     Pizzas: "pizzas",
-    Hambúgueres: "hambugueres",
+    Hambúrgueres: "hambugueres",
     Bebidas: "bebidas",
   };
 
   return (
-    <section id="menu" aria-label="Cardápio">
+    <section id="menu" aria-label="CardÃ¡pio">
       {groups.map((group) => {
         const id = idMap[group.category] || undefined;
         return (
@@ -44,6 +44,7 @@ function CarouselGroup({ id, title, items, onAdd }) {
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
+
     const setToMiddle = (useSmooth = false) => {
       const child = track.children[0];
       if (!child) return;
@@ -56,28 +57,33 @@ function CarouselGroup({ id, title, items, onAdd }) {
     };
 
     // set after images load to ensure dimensions are stable
-    const imgs = track.querySelectorAll("img");
+    const imgs = Array.from(track.querySelectorAll("img"));
     let loaded = 0;
+
+    function onImageLoad() {
+      loaded++;
+      if (loaded === imgs.length) setToMiddle(false);
+    }
+
     if (imgs.length === 0) {
       requestAnimationFrame(() => setToMiddle(false));
     } else {
       imgs.forEach((img) => {
         if (img.complete) loaded++;
-        else
-          img.addEventListener("load", () => {
-            loaded++;
-            if (loaded === imgs.length) setToMiddle(false);
-          });
+        else img.addEventListener("load", onImageLoad);
       });
-      if (loaded === imgs.length)
-        requestAnimationFrame(() => setToMiddle(false));
-      // fallback: ensure middle is set after a short timeout
-      const t = setTimeout(() => setToMiddle(false), 500);
-      // cleanup
-      return () => clearTimeout(t);
+      if (loaded === imgs.length) requestAnimationFrame(() => setToMiddle(false));
     }
-    window.addEventListener("resize", () => setToMiddle(false));
-    return () => window.removeEventListener("resize", () => setToMiddle(false));
+
+    const fallback = setTimeout(() => setToMiddle(false), 500);
+    const handleResize = () => setToMiddle(false);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      clearTimeout(fallback);
+      window.removeEventListener("resize", handleResize);
+      imgs.forEach((img) => img.removeEventListener("load", onImageLoad));
+    };
   }, [items.length]);
 
   // handle scroll, active index and infinite wrap
@@ -173,7 +179,7 @@ function CarouselGroup({ id, title, items, onAdd }) {
 
   return (
     <div className="menu-group" id={id}>
-      <h3 className="section-subtitle">{title}</h3>
+      <h2 className="section-subtitle">{title}</h2>
 
       <div className="carousel modern">
         <button
@@ -181,26 +187,39 @@ function CarouselGroup({ id, title, items, onAdd }) {
           aria-label={`Anterior ${title}`}
           onClick={() => scrollBy(-1)}
         >
-          <i className="fa-solid fa-chevron-left"></i>
+          <i className="fa-solid fa-chevron-left" aria-hidden="true"></i>
         </button>
 
-        <div className="carousel-track" ref={trackRef} tabIndex={0}>
-          {extended.map((item, idx) => (
-            <div
-              className="carousel-cell"
-              key={`${item.name}-${item.__copy}-${idx}`}
-            >
-              <DishCard item={item} onAdd={onAdd} />
-            </div>
-          ))}
+        <div
+          className="carousel-track"
+          ref={trackRef}
+          tabIndex={0}
+          aria-label={`${title}: item ${active + 1} de ${items.length}`}
+        >
+          {extended.map((item, idx) => {
+            const isPrimaryCopy = item.__copy === Math.floor(repeats / 2);
+            return (
+              <div
+                className="carousel-cell"
+                key={`${item.name}-${item.__copy}-${idx}`}
+                aria-hidden={!isPrimaryCopy}
+              >
+                <DishCard
+                  item={item}
+                  onAdd={onAdd}
+                  interactive={isPrimaryCopy}
+                />
+              </div>
+            );
+          })}
         </div>
 
         <button
           className="carousel-btn carousel-btn-right"
-          aria-label={`Próximo ${title}`}
+          aria-label={`PrÃ³ximo ${title}`}
           onClick={() => scrollBy(1)}
         >
-          <i className="fa-solid fa-chevron-right"></i>
+          <i className="fa-solid fa-chevron-right" aria-hidden="true"></i>
         </button>
       </div>
     </div>
