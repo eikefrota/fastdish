@@ -25,7 +25,7 @@ const whatsappPhone = onlyDigits(
 export const storeConfig = {
   name: envValue("VITE_STORE_NAME", "FastDish"),
   description:
-    "O melhor sabor da cidade. Pizzas, hamburgueres e bebidas geladas entregues rapido.",
+    "O melhor sabor da cidade. Pizzas, hambúrgueres e bebidas geladas entregues rápido.",
   phoneDisplay: envValue("VITE_STORE_PHONE_DISPLAY", "(85) 99906-2339"),
   whatsappPhone,
   address: {

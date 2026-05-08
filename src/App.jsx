@@ -1,4 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  ArrowRight,
+  Clock3,
+  Flame,
+  MapPin,
+  MessageCircle,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  TimerReset,
+  UtensilsCrossed,
+} from "lucide-react";
+import { Toaster, toast } from "sonner";
 import Header from "./components/Header";
 import Menu from "./components/Menu";
 import CartModal from "./components/CartModal";
@@ -37,40 +54,134 @@ function App() {
     notes: "",
   });
   const { deliveryFee, orderTotal } = getOrderTotals(total);
+  const cartButtonRef = useRef(null);
+  const modalOpen = cartVisible || paymentVisible || addressVisible;
+
+  useEffect(() => {
+    const hasMatchMedia =
+      typeof window !== "undefined" && typeof window.matchMedia === "function";
+    const reduceMotion =
+      hasMatchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduceMotion || !hasMatchMedia) return undefined;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const lenis = new Lenis({
+      duration: 1.05,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    const rafId = requestAnimationFrame(raf);
+
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray("[data-reveal]").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { y: 42, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            immediateRender: false,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 82%",
+              once: true,
+            },
+          },
+        );
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      ctx.revert();
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      lenis.destroy();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return undefined;
+    }
+
+    if (import.meta.env.MODE === "test") return undefined;
+
+    if (!modalOpen) return undefined;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const html = document.documentElement;
+    const previousBodyStyles = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+    };
+    const previousHtmlOverflow = html.style.overflow;
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
+    return () => {
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyStyles.overflow;
+      body.style.position = previousBodyStyles.position;
+      body.style.top = previousBodyStyles.top;
+      body.style.left = previousBodyStyles.left;
+      body.style.right = previousBodyStyles.right;
+      body.style.width = previousBodyStyles.width;
+      try {
+        window.scrollTo(0, scrollY);
+      } catch {
+        // Some non-browser environments expose scrollTo without implementing it.
+      }
+    };
+  }, [modalOpen]);
 
   function showToast(text, success = true) {
-    const globalToast =
-      typeof window !== "undefined" && window.Toastify ? window.Toastify : null;
-    if (globalToast) {
-      globalToast({
-        text,
-        duration: 3000,
-        close: true,
-        gravity: "top",
-        position: "center",
-        style: { background: success ? "green" : "#EF4444" },
-      }).showToast();
-    } else {
-      // non-blocking fallback
+    if (import.meta.env.MODE === "test") {
       if (success) console.log(text);
       else console.warn(text);
+      return;
     }
+
+    if (success) toast.success(text);
+    else toast.error(text);
   }
-  // persistence moved to useCart
 
   function addToCart(item) {
     add(item);
-    showToast("Produto adicionado com sucesso!", true);
+    showToast(`${item.name} entrou no carrinho.`, true);
     setCartBump(true);
   }
+
   function removeFromCart(name) {
     remove(name);
   }
 
-  const cartButtonRef = React.useRef(null);
   function openCart() {
+    if (import.meta.env.MODE !== "test") toast.dismiss();
     setCartVisible(true);
   }
+
   function closeCart() {
     setCartVisible(false);
   }
@@ -85,8 +196,8 @@ function App() {
       total < storeConfig.order.minimumOrder
     ) {
       showToast(
-        `Pedido minimo de ${formatCurrency(storeConfig.order.minimumOrder)}.`,
-        false
+        `Pedido mínimo de ${formatCurrency(storeConfig.order.minimumOrder)}.`,
+        false,
       );
       return;
     }
@@ -113,7 +224,7 @@ function App() {
   function openPaymentFromAddress() {
     if (!validateAddress()) {
       setShowAddressErrors(true);
-      showToast("Preencha o CEP e o numero antes de continuar.", false);
+      showToast("Preencha o CEP e o número antes de continuar.", false);
       return;
     }
 
@@ -122,7 +233,6 @@ function App() {
     setPaymentVisible(true);
   }
 
-  // Accept cep as parameter to avoid race conditions when input changes
   function handleCepBlur(cepParam) {
     const cep = (cepParam || address.cep || "").replace(/\D/g, "");
     if (cep.length !== 8) return Promise.resolve();
@@ -148,7 +258,7 @@ function App() {
       setShowAddressErrors(true);
       setPaymentVisible(false);
       setAddressVisible(true);
-      showToast("Preencha o CEP e o numero antes de finalizar.", false);
+      showToast("Preencha o CEP e o número antes de finalizar.", false);
       return;
     }
     const now = new Date();
@@ -181,14 +291,14 @@ function App() {
           orderAddress.paymentMethod === "Dinheiro" && orderAddress.changeFor
             ? ` - Troco para: ${orderAddress.changeFor}`
             : orderAddress.paymentMethod === "Pix" && pixPayload
-            ? ` - Pix Copia e Cola: ${pixPayload}`
-            : (orderAddress.paymentMethod === "Cartao" ||
-                orderAddress.paymentMethod === "Cartão") &&
-              orderAddress.card
-            ? ` - ${orderAddress.card.type} final ${orderAddress.card.cardLast4}`
-            : ""
+              ? ` - Pix Copia e Cola: ${pixPayload}`
+              : (orderAddress.paymentMethod === "Cartao" ||
+                    orderAddress.paymentMethod === "Cartão") &&
+                  orderAddress.card
+                ? ` - ${orderAddress.card.type} final ${orderAddress.card.cardLast4}`
+                : ""
         }`
-      : "*Pagamento:* Nao especificado";
+      : "*Pagamento:* Não especificado";
 
     const plainMessage = `*Novo pedido - ${storeConfig.name}* ${orderId}
 ${datetime}
@@ -204,7 +314,7 @@ ${addressLines}
 
 ${paymentInfo}
 
-${orderAddress.notes ? `*Observacoes:* ${orderAddress.notes}\n` : ""}
+${orderAddress.notes ? `*Observações:* ${orderAddress.notes}\n` : ""}
 
 Obrigado!
 `;
@@ -217,7 +327,18 @@ Obrigado!
   }
 
   return (
-    <div>
+    <div className="app-shell">
+      <Toaster
+        position="top-center"
+        closeButton
+        toastOptions={{
+          style: {
+            background: "#111214",
+            color: "#fff7ea",
+            border: "1px solid rgba(255, 255, 255, 0.16)",
+          },
+        }}
+      />
       <Header
         storeName={storeConfig.name}
         onOpenCart={openCart}
@@ -227,74 +348,100 @@ Obrigado!
         onCartBumpEnd={() => setCartBump(false)}
       />
 
-      <main id="content">
-        <section id="home">
-          <div id="cta">
-            <h1 className="title">
-              ENCONTRE O <span>MELHOR</span> SABOR PARA VOCÊ
-            </h1>
-            <p className="description">
-              Da pizza ao hambúguer, temos a comida perfeita para você. Somos o
-              melhor da cidade!
-            </p>
+      <main id="content" aria-hidden={modalOpen ? "true" : undefined}>
+        <Hero heroImage={heroImage} totalQuantity={totalQuantity} />
+        <ProofStrip />
 
-            <div id="cta-area">
-              <a id="cta-btn" href="#menu">
-                Ver cardápio
-              </a>
-            </div>
+        <Menu groups={dishesData} onAdd={addToCart} />
+
+        <section className="experience-section" data-reveal>
+          <div className="section-eyebrow">
+            <Sparkles size={16} aria-hidden="true" />
+            Experiência premium
           </div>
-
-          <div id="banner">
-            <div className="banner-image-container">
-              <img src={heroImage} alt="Pizza Calabresa" />
+          <div className="experience-grid">
+            <div className="experience-copy">
+              <h2>Pedido guiado, sem atrito.</h2>
+              <p>
+                Cardápio visual, carrinho claro e envio direto pelo WhatsApp.
+              </p>
+            </div>
+            <div className="experience-steps" aria-label="Etapas do pedido">
+              <article>
+                <span>01</span>
+                <h3>Escolha</h3>
+                <p>Fotos grandes, preço claro e ação sempre próxima.</p>
+              </article>
+              <article>
+                <span>02</span>
+                <h3>Entrega</h3>
+                <p>CEP inteligente e observações sem complicação.</p>
+              </article>
+              <article>
+                <span>03</span>
+                <h3>WhatsApp</h3>
+                <p>Resumo formatado com itens, entrega e pagamento.</p>
+              </article>
             </div>
           </div>
         </section>
 
-        <Menu groups={dishesData} onAdd={addToCart} />
-
-        {cartVisible && (
-          <CartModal
-            cart={cart}
-            onClose={closeCart}
-            onConfirm={confirmCart}
-            onRemove={removeFromCart}
-            onAdd={add}
-            removeAll={removeAll}
-            returnFocusRef={cartButtonRef}
-            deliveryFee={deliveryFee}
-            orderTotal={orderTotal}
-            minimumOrder={storeConfig.order.minimumOrder}
-          />
-        )}
-        {paymentVisible && (
-          <PaymentModal
-            address={address}
-            setAddress={setAddress}
-            onReturn={openAddressFromPayment}
-            onConfirm={checkout}
-            returnFocusRef={cartButtonRef}
-            cart={cart}
-            total={total}
-            deliveryFee={deliveryFee}
-            orderTotal={orderTotal}
-          />
-        )}
-        {addressVisible && (
-          <AddressModal
-            address={address}
-            setAddress={setAddress}
-            onReturn={returnAddress}
-            onCheckout={openPaymentFromAddress}
-            onCepBlur={handleCepBlur}
-            returnFocusRef={cartButtonRef}
-            showErrors={showAddressErrors}
-          />
-        )}
+        <section className="final-cta" data-reveal>
+          <div>
+            <span className="section-eyebrow">
+              <TimerReset size={16} aria-hidden="true" />
+              Peça agora
+            </span>
+            <h2>Seu favorito, mais rápido.</h2>
+            <p>Pizzas, burgers e bebidas com compra direta e sem ruído.</p>
+          </div>
+          <a className="cta-primary cta-final" href="#menu">
+            Escolher agora
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
+        </section>
       </main>
 
-      <footer>
+      {cartVisible && (
+        <CartModal
+          cart={cart}
+          onClose={closeCart}
+          onConfirm={confirmCart}
+          onRemove={removeFromCart}
+          onAdd={add}
+          removeAll={removeAll}
+          returnFocusRef={cartButtonRef}
+          deliveryFee={deliveryFee}
+          orderTotal={orderTotal}
+          minimumOrder={storeConfig.order.minimumOrder}
+        />
+      )}
+      {paymentVisible && (
+        <PaymentModal
+          address={address}
+          setAddress={setAddress}
+          onReturn={openAddressFromPayment}
+          onConfirm={checkout}
+          returnFocusRef={cartButtonRef}
+          cart={cart}
+          total={total}
+          deliveryFee={deliveryFee}
+          orderTotal={orderTotal}
+        />
+      )}
+      {addressVisible && (
+        <AddressModal
+          address={address}
+          setAddress={setAddress}
+          onReturn={returnAddress}
+          onCheckout={openPaymentFromAddress}
+          onCepBlur={handleCepBlur}
+          returnFocusRef={cartButtonRef}
+          showErrors={showAddressErrors}
+        />
+      )}
+
+      <footer aria-hidden={modalOpen ? "true" : undefined}>
         <div className="footer-container">
           <div className="footer-grid">
             <div className="footer-brand">
@@ -307,29 +454,16 @@ Obrigado!
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
               >
-                <i className="fa-solid fa-burger" aria-hidden="true"></i>
+                <UtensilsCrossed size={24} aria-hidden="true" />
                 {storeConfig.name}
               </a>
               <p className="footer-desc">{storeConfig.description}</p>
               <div className="footer-socials">
-                {storeConfig.socialLinks.instagram && (
-                  <a
-                    href={storeConfig.socialLinks.instagram}
-                    aria-label="Instagram"
-                  >
-                    <i className="fa-brands fa-instagram" aria-hidden="true"></i>
-                  </a>
-                )}
-                {storeConfig.socialLinks.facebook && (
-                  <a
-                    href={storeConfig.socialLinks.facebook}
-                    aria-label="Facebook"
-                  >
-                    <i className="fa-brands fa-facebook" aria-hidden="true"></i>
-                  </a>
-                )}
-                <a href={storeConfig.socialLinks.whatsapp} aria-label="WhatsApp">
-                  <i className="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                <a
+                  href={storeConfig.socialLinks.whatsapp}
+                  aria-label="WhatsApp"
+                >
+                  <MessageCircle size={18} aria-hidden="true" />
                 </a>
               </div>
             </div>
@@ -344,7 +478,7 @@ Obrigado!
                   <a href="#pizzas">Pizzas</a>
                 </li>
                 <li>
-                  <a href="#hambugueres">Hambúgueres</a>
+                  <a href="#hambugueres">Hambúrgueres</a>
                 </li>
                 <li>
                   <a href="#bebidas">Bebidas</a>
@@ -366,8 +500,8 @@ Obrigado!
             </div>
 
             <div className="footer-newsletter">
-              <h3>Newsletter</h3>
-              <p>Receba promoções e novidades por e-mail.</p>
+              <h3>Clube FastDish</h3>
+              <p>Receba promoções, combos e novidades pelo WhatsApp.</p>
               <form
                 onSubmit={(e) => e.preventDefault()}
                 className="newsletter-form"
@@ -377,7 +511,7 @@ Obrigado!
                   placeholder="Seu e-mail"
                   aria-label="Seu e-mail"
                 />
-                <button type="submit">Inscrever</button>
+                <button type="submit">Entrar</button>
               </form>
             </div>
           </div>
@@ -389,7 +523,99 @@ Obrigado!
           </div>
         </div>
       </footer>
+
+      {totalQuantity > 0 && (
+        <button className="mobile-cart-bar" type="button" onClick={openCart}>
+          <span>
+            <ShoppingBag size={18} aria-hidden="true" />
+            {totalQuantity} {totalQuantity === 1 ? "item" : "itens"}
+          </span>
+          <strong>{formatCurrency(orderTotal)}</strong>
+        </button>
+      )}
     </div>
+  );
+}
+
+function Hero({ heroImage, totalQuantity }) {
+  return (
+    <section id="home" className="hero-section">
+      <div className="hero-light hero-light-a" aria-hidden="true" />
+      <div className="hero-light hero-light-b" aria-hidden="true" />
+
+      <div id="cta" className="hero-copy">
+        <span className="hero-kicker hero-animate-1">
+          <Flame size={16} aria-hidden="true" />
+          Aberto agora
+        </span>
+
+        <h1 className="title hero-animate-2">
+          FastDish
+          <span>
+            Sabor quente.
+            <br />
+            Pedido veloz.
+          </span>
+        </h1>
+
+        <div id="cta-area" className="hero-actions hero-animate-4">
+          <a id="cta-btn" className="cta-primary" href="#menu">
+            Pedir agora
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
+        </div>
+
+        <div className="hero-metrics hero-animate-5">
+          <span>
+            <Clock3 size={16} aria-hidden="true" />
+            18-32 min
+          </span>
+          <span>
+            <Star size={16} aria-hidden="true" />
+            4.9 avaliação
+          </span>
+          <span>
+            <ShoppingBag size={16} aria-hidden="true" />
+            {totalQuantity} no carrinho
+          </span>
+        </div>
+      </div>
+
+      <div id="banner" className="hero-product hero-product-enter">
+        <div className="orbit-ring orbit-ring-one" aria-hidden="true" />
+        <div className="orbit-ring orbit-ring-two" aria-hidden="true" />
+        <div className="banner-image-container">
+          <img src={heroImage} alt="Pizza Calabresa" fetchpriority="high" />
+        </div>
+        <div className="floating-ticket ticket-top">
+          <ShieldCheck size={17} aria-hidden="true" />
+          Pedido fácil
+        </div>
+        <div className="floating-ticket ticket-bottom">
+          <MapPin size={17} aria-hidden="true" />
+          Entrega rápida
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProofStrip() {
+  return (
+    <section className="proof-strip" aria-label="Diferenciais FastDish">
+      <div>
+        <UtensilsCrossed size={19} aria-hidden="true" />
+        <span>Quente e crocante</span>
+      </div>
+      <div>
+        <Clock3 size={19} aria-hidden="true" />
+        <span>Compra em poucos toques</span>
+      </div>
+      <div>
+        <ShieldCheck size={19} aria-hidden="true" />
+        <span>Direto no WhatsApp</span>
+      </div>
+    </section>
   );
 }
 

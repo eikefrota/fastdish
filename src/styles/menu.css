@@ -1,285 +1,326 @@
-/* Make the menu section span full width but keep content constrained
-   so titles and grids line up with the rest of the page. */
 #menu {
-  display: block;
-  min-height: 100vh;
+  color: var(--ink);
+  padding: 82px 0 24px;
 }
 
-.section-subtitle {
-  color: #1d1d1dad;
-  font-size: 45px;
-  width: 100%;
-  max-width: 1200px;
-  margin: 50px auto;
-  padding: 0 8px;
-  text-align: center;
-  /* ensure anchor targets appear below the sticky header */
-  scroll-margin-top: 120px;
-}
-
-/* group wrapper to keep title + grid aligned and centered */
-.menu-group {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto 48px auto;
-  padding: 0 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative; /* allow arrows to be positioned at group's edges */
-}
-
-/* Carousel styles */
-.carousel {
-  width: 100%;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.carousel-track {
-  display: flex;
-  gap: 24px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  padding: 12px 8px;
-  scroll-snap-type: x mandatory;
-  width: 100%;
-  /* very subtle soft fade on the sides (almost imperceptible) */
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 1%,
-    black 99%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 1%,
-    black 99%,
-    transparent 100%
-  );
-
-  /* hide native scrollbar */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
-}
-
-.carousel-track::-webkit-scrollbar {
-  display: none; /* Safari/WebKit */
-}
-
-.carousel-track.is-dragging {
-  cursor: grabbing;
-}
-
-.carousel-cell {
-  scroll-snap-align: start;
-  flex: 0 0 calc(25% - 24px);
-  display: flex;
-  justify-content: center;
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 220ms;
-}
-
-.carousel-cell:hover {
-  transform: translateY(-6px) scale(1.02);
-  z-index: 5;
-}
-
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: transform 180ms, background 180ms;
-  opacity: 0.85;
-}
-
-.carousel-btn:hover {
-  transform: translateY(-50%) scale(1.04);
-  opacity: 1;
-}
-
-.carousel-btn-left {
-  left: -60px; /* move left arrow outside the group */
-}
-.carousel-btn-right {
-  right: -60px; /* move right arrow outside the group */
-}
-
-/* responsive: bring arrows back inside on smaller screens so they don't overflow */
-@media screen and (max-width: 940px) {
-  .carousel-btn-left {
-    left: 6px;
-  }
-  .carousel-btn-right {
-    right: 6px;
-  }
-}
-
-.carousel-btn i {
-  color: var(--color-primary);
-  font-size: 16px;
-}
-
-.carousel-dots {
-  display: none;
-}
-
-/* container used to keep the grid aligned with the subtitle and page padding */
-.menu-row {
-  width: 100%;
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 8px;
-}
-
-/* if anchor targets are the group wrappers, ensure they are offset below sticky header */
-#menu > div,
-#menu > div > div {
-  scroll-margin-top: 120px;
-}
-
-.dishes {
-  width: 100%;
-  display: flex;
-  gap: 24px;
-  margin-top: 35px;
-  align-items: flex-start;
-  justify-content: flex-start; /* align items to the left so grid lines up under the title */
-  flex-wrap: wrap;
-}
-
-.dish {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 8px;
-  gap: 12px;
-  /* use a flexible basis so items wrap predictably */
-  flex: 0 1 calc(25% - 24px);
-  padding: 20px;
-  background-color: #ffffff;
-  box-shadow: 0px 0px 12px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-/* make all cards the same height and ensure price stays at bottom */
-.dish {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* push price to bottom */
-  min-height: 540px;
-}
-
-.dish-heart {
-  position: absolute;
-  background-color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 25px;
-  color: #eeeeee;
-  width: 70px;
-  height: 70px;
-  right: 0px;
-  top: 0px;
-  border-radius: 0px 8px 0px 36px;
-}
-
-.dish-image {
-  height: 250px;
-  width: 250px;
-  object-fit: cover;
-  transition: transform 150ms ease;
-}
-
-.dish-image[loading="lazy"] {
-  filter: blur(0.2px);
-}
-
-.dish-title {
-  font-size: 25px;
-  text-align: center;
+.menu-shell {
+  width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
 }
 
-/* limit description so it doesn't expand card height */
-.dish-description {
-  color: #1d1d1dad;
-  text-align: center;
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* show max 3 lines */
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
+.menu-intro {
+  display: grid;
+  max-width: none;
+  gap: 12px;
+  margin-bottom: 46px;
+}
+
+.menu-intro h2 {
+  font-family: var(--font-display);
+  max-width: 100%;
+  font-size: clamp(2.2rem, 4.4vw, 3.9rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.menu-intro p {
+  max-width: 440px;
+  color: var(--body-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+#menu .section-eyebrow {
+  color: var(--flame);
+}
+
+.menu-group {
+  scroll-margin-top: calc(var(--header-height) + 34px);
+  margin-bottom: clamp(48px, 7vw, 76px);
+}
+
+.menu-group-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.section-subtitle {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.8vw, 3.35rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.carousel-controls {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.carousel-controls button {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(204, 34, 16, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--flame);
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(99, 26, 12, 0.1);
+  transition:
+    transform 170ms ease,
+    background 170ms ease,
+    color 170ms ease,
+    opacity 170ms ease;
+}
+
+.carousel-controls button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--flame);
+  color: white;
+}
+
+.carousel-controls button:disabled {
+  opacity: 0.34;
+}
+
+.dishes {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 1fr);
+  grid-template-columns: none;
+  gap: 18px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 8px 4px 28px;
+  margin-inline: -4px;
+  scroll-padding-inline: 4px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.dishes::-webkit-scrollbar {
+  display: none;
+}
+
+.dishes.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.dish {
+  min-height: 420px;
+  display: grid;
+  grid-template-rows: auto 190px 1fr auto;
+  gap: 14px;
+  padding: 15px;
+  border: 1px solid rgba(204, 34, 16, 0.08);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(circle at 50% 8%, rgba(255, 106, 42, 0.14), transparent 13rem),
+    linear-gradient(180deg, #fffaf2, #fff4e8);
+  box-shadow: 0 20px 54px rgba(99, 26, 12, 0.1);
+  position: relative;
   overflow: hidden;
+  scroll-snap-align: start;
+  user-select: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.dish:hover {
+  transform: translateY(-7px);
+  border-color: rgba(204, 34, 16, 0.22);
+  box-shadow: 0 28px 72px rgba(99, 26, 12, 0.16);
+}
+
+.dish::after {
+  content: "";
+  position: absolute;
+  inset: auto -20% -34% -20%;
+  height: 54%;
+  background: radial-gradient(circle, rgba(255, 80, 32, 0.18), transparent 62%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.dish:hover::after {
+  opacity: 1;
+}
+
+.dish-topline {
+  position: relative;
+  z-index: 1;
+}
+
+.dish-topline span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(255, 77, 24, 0.1);
+  color: var(--flame);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dish-image-wrap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+}
+
+.dish-image {
+  width: min(100%, 192px);
+  height: 190px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 22px 22px rgba(99, 26, 12, 0.18));
+  transition: transform 180ms ease;
+}
+
+.dish:hover .dish-image {
+  transform: scale(1.035) rotate(1deg);
+}
+
+.dish-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.dish-title {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.32rem;
+  line-height: 1.03;
+}
+
+.dish-description {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--body-muted);
+  font-size: 0.94rem;
+  line-height: 1.42;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .dish-price {
+  position: relative;
+  z-index: 1;
   display: flex;
-  align-items: center;
-  gap: 20px;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dish-price span {
+  color: #8a6759;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dish-price h4 {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.36rem;
+  line-height: 1;
 }
 
 .btn-dish {
-  border: none;
-  border-radius: 100%;
-  display: flex;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-primary);
-  color: #ffffff;
-  padding: 8px;
-  box-shadow: 0px 5px 20px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
   cursor: pointer;
-  transition: transform 0.2s;
+  box-shadow: 0 14px 28px rgba(14, 10, 8, 0.22);
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .btn-dish:hover {
-  background-color: var(--color-primary-hover);
-  transform: scale(1.1);
+  background: var(--flame);
+  transform: scale(1.06);
+  box-shadow: 0 16px 34px rgba(255, 77, 24, 0.34);
 }
 
-@media screen and (max-width: 1185px) {
-  #menu {
-    margin-top: 30px;
+@media screen and (min-width: 1080px) {
+  .menu-intro h2 {
+    white-space: nowrap;
   }
 
   .dishes {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .carousel-cell {
-    flex: 0 0 calc(50% - 24px);
-  }
-
-  .dish {
-    width: calc(50% - 12px);
-    min-height: 520px;
+    grid-auto-columns: calc((100% - 54px) / 4);
   }
 }
 
-@media screen and (max-width: 630px) {
-  .dish {
-    width: 100%;
-    height: auto; /* allow natural height on very small screens */
-    min-height: 0;
+@media screen and (min-width: 760px) and (max-width: 1079px) {
+  .dishes {
+    grid-auto-columns: calc((100% - 36px) / 3);
+  }
+}
+
+@media screen and (max-width: 760px) {
+  #menu {
+    padding-top: 66px;
   }
 
-  .carousel-cell {
-    flex: 0 0 100%;
+  .menu-shell {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .menu-intro {
+    margin-bottom: 36px;
+  }
+
+  .menu-intro h2 {
+    font-size: clamp(2.05rem, 9vw, 3rem);
+  }
+
+  .menu-group-heading {
+    align-items: center;
+  }
+
+  .carousel-controls {
+    display: none;
+  }
+
+  .dishes {
+    grid-auto-columns: minmax(238px, 82vw);
+    gap: 14px;
+    padding-bottom: 22px;
+  }
+
+  .dish {
+    min-height: 392px;
+    grid-template-rows: auto 174px auto auto;
+  }
+
+  .dish-image {
+    height: 174px;
   }
 }

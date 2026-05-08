@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { ArrowLeft, MapPin, WalletCards } from "lucide-react";
 
 export default function AddressModal({
   address,
@@ -86,10 +87,20 @@ export default function AddressModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="address-title"
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
         >
-          <h2 className="address-title" id="address-title">
-            ENDEREÇO
-          </h2>
+          <div className="modal-header">
+            <div>
+              <span className="modal-kicker">
+                <MapPin size={16} aria-hidden="true" />
+                Entrega guiada
+              </span>
+              <h2 className="address-title" id="address-title">
+                Endereço
+              </h2>
+            </div>
+          </div>
 
           <label className="address-label" htmlFor="input-cep">
             CEP
@@ -247,6 +258,7 @@ export default function AddressModal({
 
           <div className="address-buttons">
             <button id="return-address-btn" type="button" onClick={onReturn}>
+              <ArrowLeft size={17} aria-hidden="true" />
               Voltar
             </button>
             <button
@@ -255,6 +267,7 @@ export default function AddressModal({
               onClick={onCheckout}
               disabled={cepLoading}
             >
+              <WalletCards size={17} aria-hidden="true" />
               {cepLoading ? "Aguardando CEP..." : "Pagamento"}
             </button>
           </div>

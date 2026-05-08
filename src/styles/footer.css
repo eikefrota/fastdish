@@ -1,124 +1,132 @@
 footer {
-  background: linear-gradient(180deg, #f5f5f5 0%, #eeeeee 100%);
-  color: #333;
+  background: #08090b;
+  color: var(--cream);
 }
 
 .footer-container {
-  max-width: 80%;
+  width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 48px 0px;
+  padding: 62px 0 38px;
 }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 32px;
+  grid-template-columns: 1.25fr 0.8fr 0.9fr 1.2fr;
+  gap: 34px;
   align-items: start;
 }
 
-.footer-brand #footer-logo,
-.footer-brand i#footer-logo {
-  /* match header logo styles */
-  font-size: 26px;
-  color: var(--color-primary);
-  text-decoration: none; /* remove underline */
+.footer-brand #footer-logo {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-weight: 600;
+  gap: 10px;
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .footer-desc {
-  margin-top: 12px;
-  color: #666;
-  line-height: 1.5;
+  max-width: 270px;
+  margin-top: 16px;
+  color: rgba(255, 247, 234, 0.62);
+  line-height: 1.6;
 }
 
 .footer-socials {
-  margin-top: 16px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  margin-top: 18px;
 }
 
 .footer-socials a {
+  width: 42px;
+  height: 42px;
   display: inline-flex;
-  width: 38px;
-  height: 38px;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  border-radius: 8px;
-  color: var(--color-primary);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cream);
+  transition: transform 160ms ease, background 160ms ease;
 }
 
 .footer-socials a:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  background: var(--flame);
 }
 
 .footer-links h3,
 .footer-contact h3,
 .footer-newsletter h3 {
-  margin-bottom: 12px;
-  font-size: 18px;
+  margin-bottom: 14px;
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: 1.18rem;
 }
 
 .footer-links ul {
+  display: grid;
+  gap: 10px;
   list-style: none;
-  padding: 0;
 }
 
-.footer-links a {
-  color: #333;
+.footer-links a,
+.footer-contact a {
+  color: rgba(255, 247, 234, 0.66);
   text-decoration: none;
-  display: inline-block;
-  margin-bottom: 8px;
   transition: color 160ms ease;
 }
 
-.footer-links a:hover {
-  color: var(--color-primary);
+.footer-links a:hover,
+.footer-contact a:hover {
+  color: var(--cheddar);
 }
 
-.footer-contact address {
+.footer-contact address,
+.footer-newsletter p {
+  color: rgba(255, 247, 234, 0.62);
   font-style: normal;
-  color: #666;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .newsletter-form {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 .newsletter-form input[type="email"] {
   flex: 1;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #e6e6e6;
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--cream);
+  padding: 10px 14px;
 }
 
 .newsletter-form button {
-  background: var(--color-primary);
-  color: #fff;
-  border: none;
+  min-height: 46px;
+  border-radius: 999px;
+  background: #b83217;
+  color: white;
   padding: 10px 16px;
-  border-radius: 10px;
   cursor: pointer;
+  font-weight: 900;
 }
 
 .footer-bottom {
-  margin-top: 28px;
   display: flex;
-  justify-content: center; /* center the content */
-  align-items: center;
-  border-top: 1px solid #e9e9e9;
-  padding-top: 18px;
-  color: #888;
-  font-size: 14px;
+  justify-content: center;
+  margin-top: 38px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 247, 234, 0.72);
+  font-size: 0.9rem;
 }
 
 .footer-copyright {
@@ -131,14 +139,16 @@ footer {
   }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 620px) {
+  .footer-container {
+    padding-bottom: 92px;
+  }
+
   .footer-grid {
     grid-template-columns: 1fr;
   }
 
-  .footer-bottom {
+  .newsletter-form {
     flex-direction: column;
-    gap: 8px;
-    text-align: center;
   }
 }

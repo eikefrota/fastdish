@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { formatCurrency } from "../config/store";
 
 export default function CartModal({
@@ -20,8 +21,7 @@ export default function CartModal({
 
   useEffect(() => {
     const prevActive = document.activeElement;
-    // focus first actionable button inside modal
-    if (firstButtonRef.current) firstButtonRef.current.focus();
+    firstButtonRef.current?.focus();
 
     function handleKey(e) {
       if (e.key === "Escape") onClose();
@@ -48,14 +48,35 @@ export default function CartModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="cart-title"
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
         >
-          <h2 className="cart-title" id="cart-title">
-            CARRINHO
-          </h2>
+          <div className="modal-header">
+            <div>
+              <span className="modal-kicker">
+                <ShoppingBag size={16} aria-hidden="true" />
+                Pedido em andamento
+              </span>
+              <h2 className="cart-title" id="cart-title">
+                Carrinho
+              </h2>
+            </div>
+            <button
+              className="modal-close"
+              type="button"
+              onClick={onClose}
+              ref={firstButtonRef}
+              aria-label="Fechar carrinho"
+            >
+              <X size={20} aria-hidden="true" />
+            </button>
+          </div>
 
           <div id="cart-items">
             {cart.length === 0 ? (
-              <p aria-live="polite">Seu carrinho está vazio.</p>
+              <p className="empty-state" aria-live="polite">
+                Seu carrinho está vazio.
+              </p>
             ) : (
               cart.map((item) => (
                 <div className="cart-item" key={item.name}>
@@ -75,7 +96,7 @@ export default function CartModal({
                         aria-label={`Remover uma unidade de ${item.name}`}
                         onClick={() => onRemove(item.name)}
                       >
-                        -
+                        <Minus size={15} aria-hidden="true" />
                       </button>
                       <span aria-hidden="true">{item.quantity}</span>
                       <button
@@ -83,7 +104,7 @@ export default function CartModal({
                         aria-label={`Adicionar unidade de ${item.name}`}
                         onClick={() => onAdd && onAdd(item)}
                       >
-                        +
+                        <Plus size={15} aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -93,6 +114,7 @@ export default function CartModal({
                       className="btn-remove"
                       onClick={() => removeAll && removeAll(item.name)}
                     >
+                      <Trash2 size={15} aria-hidden="true" />
                       Remover tudo
                     </button>
                   </div>
@@ -115,12 +137,7 @@ export default function CartModal({
           )}
 
           <div className="cart-buttons">
-            <button
-              id="close-cart-btn"
-              type="button"
-              onClick={onClose}
-              ref={firstButtonRef}
-            >
+            <button id="close-cart-btn" type="button" onClick={onClose}>
               Fechar
             </button>
             <button

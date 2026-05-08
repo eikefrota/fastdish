@@ -1,4 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  Banknote,
+  CheckCircle2,
+  Copy,
+  CreditCard,
+  QrCode,
+  WalletCards,
+} from "lucide-react";
 import QRCode from "qrcode";
 import { formatCurrency, storeConfig } from "../config/store";
 import { validateCardAll, detectBrand } from "../utils/cardValidation";
@@ -211,10 +220,20 @@ export default function PaymentModal({
           aria-modal="true"
           aria-labelledby="payment-title"
           ref={containerRef}
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
         >
-          <h2 className="address-title" id="payment-title">
-            FORMA DE PAGAMENTO
-          </h2>
+          <div className="modal-header">
+            <div>
+              <span className="modal-kicker">
+                <WalletCards size={16} aria-hidden="true" />
+                Finalização segura
+              </span>
+              <h2 className="address-title" id="payment-title">
+                Forma de pagamento
+              </h2>
+            </div>
+          </div>
 
           <div
             className="payment-summary"
@@ -269,11 +288,12 @@ export default function PaymentModal({
             aria-label="Formas de pagamento"
           >
             {[
-              { id: "Dinheiro", label: "Dinheiro", icon: "fa-money-bill-wave" },
-              { id: "Cartão", label: "Cartão", icon: "fa-credit-card" },
-              { id: "Pix", label: "Pix", icon: "fa-qrcode" },
+              { id: "Dinheiro", label: "Dinheiro", icon: Banknote },
+              { id: "Cartão", label: "Cartão", icon: CreditCard },
+              { id: "Pix", label: "Pix", icon: QrCode },
             ].map((m) => {
               const selected = address.paymentMethod === m.id;
+              const Icon = m.icon;
               return (
                 <button
                   type="button"
@@ -289,11 +309,7 @@ export default function PaymentModal({
                   className={"payment-pill" + (selected ? " selected" : "")}
                   style={{ marginRight: 8 }}
                 >
-                  <i
-                    className={`fa-solid ${m.icon}`}
-                    aria-hidden="true"
-                    style={{ marginRight: 8 }}
-                  ></i>
+                  <Icon size={17} aria-hidden="true" />
                   <span>{m.label}</span>
                 </button>
               );
@@ -404,11 +420,7 @@ export default function PaymentModal({
                       />
                     )}
                     {cardBrand === "unknown" && (
-                      <i
-                        className="fa-solid fa-credit-card"
-                        aria-hidden="true"
-                        title="Cartão"
-                      ></i>
+                      <CreditCard size={18} aria-hidden="true" />
                     )}
                   </span>
                 </div>
@@ -524,7 +536,17 @@ export default function PaymentModal({
                           }
                         }}
                       >
-                        {payloadCopied ? "Copiado" : "Copiar"}
+                        {payloadCopied ? (
+                          <>
+                            <CheckCircle2 size={16} aria-hidden="true" />
+                            Copiado
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={16} aria-hidden="true" />
+                            Copiar
+                          </>
+                        )}
                       </button>
                       <p
                         style={{ color: "#64748b", marginTop: 6, fontSize: 13 }}
@@ -596,6 +618,7 @@ export default function PaymentModal({
 
           <div className="address-buttons" style={{ marginTop: 18 }}>
             <button id="return-payment-btn" type="button" onClick={onReturn}>
+              <ArrowLeft size={17} aria-hidden="true" />
               Voltar
             </button>
             <button
@@ -608,6 +631,7 @@ export default function PaymentModal({
                   Object.keys(validateCardAllLocal()).length > 0)
               }
             >
+              <CheckCircle2 size={17} aria-hidden="true" />
               Finalizar pedido
             </button>
           </div>

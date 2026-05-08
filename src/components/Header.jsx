@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Menu as MenuIcon,
+  ShoppingBag,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
 
 export default function Header({
   storeName = "FastDish",
@@ -9,26 +15,23 @@ export default function Header({
   onCartBumpEnd,
 }) {
   const [mobileActive, setMobileActive] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const mobileMenuRef = useRef(null);
   const mobileBtnRef = useRef(null);
-  const [isClosing, setIsClosing] = useState(false);
-  const CLOSE_ANIM_DURATION = 280; // ms, keep in sync with CSS
+  const CLOSE_ANIM_DURATION = 280;
 
   useEffect(() => {
-    // prevent background scrolling when menu is open
     if (mobileActive) {
       document.body.style.overflow = "hidden";
-      // focus first link in the mobile menu for accessibility
       const firstLink = mobileMenuRef.current?.querySelector("a");
       firstLink?.focus();
     } else {
       document.body.style.overflow = "";
-      // restore focus to mobile button when closing
-      mobileBtnRef.current?.focus();
+      if (isClosing) mobileBtnRef.current?.focus();
     }
 
     function onKey(e) {
-      if (e.key === "Escape") setMobileActive(false);
+      if (e.key === "Escape") closeMenu();
     }
 
     document.addEventListener("keydown", onKey);
@@ -36,11 +39,11 @@ export default function Header({
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [mobileActive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileActive, isClosing]);
 
   function closeMenu(afterClose) {
     if (!mobileActive || isClosing) {
-      // if already closed or closing, just ensure state
       setMobileActive(false);
       setIsClosing(false);
       if (afterClose) afterClose();
@@ -48,7 +51,6 @@ export default function Header({
     }
 
     setIsClosing(true);
-    // wait the duration of the closing animation, then hide
     setTimeout(() => {
       setIsClosing(false);
       setMobileActive(false);
@@ -63,12 +65,8 @@ export default function Header({
       if (hash === "#home") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else if (target) {
-        // small delay to allow menu to settle before smooth scrolling
-        setTimeout(() => {
-          target.scrollIntoView({ behavior: "smooth" });
-        }, 40);
+        setTimeout(() => target.scrollIntoView({ behavior: "smooth" }), 40);
       } else {
-        // fallback: update location
         window.location.hash = hash;
       }
     });
@@ -85,14 +83,16 @@ export default function Header({
 
   return (
     <header>
-      <nav id="nav-bar">
+      <nav id="nav-bar" aria-label="Navegação principal">
         <a
           id="nav-logo"
           className="logo-link"
           href="#home"
           onClick={(e) => handleMobileLinkClick(e, "#home")}
         >
-          <i className="fa-solid fa-burger" aria-hidden="true"></i>
+          <span className="logo-mark" aria-hidden="true">
+            <UtensilsCrossed size={21} />
+          </span>
           {storeName}
         </a>
 
@@ -113,7 +113,7 @@ export default function Header({
             <a href="#pizzas">Pizzas</a>
           </li>
           <li className="nav-item">
-            <a href="#hambugueres">Hambúgueres</a>
+            <a href="#hambugueres">Hambúrgueres</a>
           </li>
           <li className="nav-item">
             <a href="#bebidas">Bebidas</a>
@@ -128,7 +128,7 @@ export default function Header({
           className={cartBump ? "cart-bump" : ""}
           onAnimationEnd={onCartBumpEnd}
         >
-          <i className="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+          <ShoppingBag size={18} aria-hidden="true" />
           Carrinho
           <span
             className="cart-badge"
@@ -145,14 +145,14 @@ export default function Header({
           aria-expanded={mobileActive}
           onClick={() => (mobileActive ? closeMenu() : setMobileActive(true))}
         >
-          <i
-            className={mobileActive ? "fa-solid fa-xmark" : "fa-solid fa-bars"}
-            aria-hidden="true"
-          ></i>
+          {mobileActive ? (
+            <X size={25} aria-hidden="true" />
+          ) : (
+            <MenuIcon size={25} aria-hidden="true" />
+          )}
         </button>
       </nav>
 
-      {/* backdrop to dim page and capture clicks to close menu */}
       <div
         id="mobile-backdrop"
         className={
@@ -177,7 +177,7 @@ export default function Header({
           aria-label="Fechar menu"
           onClick={() => closeMenu()}
         >
-          <i className="fa-solid fa-xmark" aria-hidden="true"></i>
+          <X size={28} aria-hidden="true" />
         </button>
         <ul id="mobile-nav-list">
           <li className="nav-item">
@@ -198,7 +198,7 @@ export default function Header({
               href="#hambugueres"
               onClick={(e) => handleMobileLinkClick(e, "#hambugueres")}
             >
-              Hambúgueres
+              Hambúrgueres
             </a>
           </li>
           <li className="nav-item">
@@ -216,7 +216,7 @@ export default function Header({
           onClick={handleCartClick}
           aria-haspopup="dialog"
         >
-          <i className="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+          <ShoppingBag size={18} aria-hidden="true" />
           Carrinho
           <span
             className="cart-badge"
